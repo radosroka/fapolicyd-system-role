@@ -1,8 +1,25 @@
-# SPDX-License-Identifier: MIT
 ---
-# Here is the right place to put the role's input variables.
-# This file also serves as a documentation for such a variables.
+# NB. Supported RHEL versions: RHEL 8+
+#
+# Enable or disable service after configuration
+# to allow testing and verification before use.
+# NB. See ima_evm_setup if planning to use IMA.
+fapolicyd_setup_enable_service: false
 
-# Examples of role input variables:
-template_foo: foo
-template_bar: true
+# fapolicyd config file to copy
+# Role provided alternatives:
+# * fapolicyd.conf  - RHEL default config file
+fapolicyd_setup_config_file:
+
+# fapolicyd rules file to copy
+fapolicyd_setup_rules_file:
+
+# fapolicyd trust file to copy
+# Role provided alternatives:
+# * fapolicyd.trust - RHEL default trust file
+fapolicyd_setup_trust_file:
+
+# fapolicyd RPM filter file to copy
+# Role provided alternatives:
+# * rpm-filter.conf - RHEL default trust file
+fapolicyd_setup_rpm_filter_file:
