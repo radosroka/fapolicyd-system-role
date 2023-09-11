@@ -1,9 +1,9 @@
-# Role Name
+# Fapolicyd
 
 ![template](https://github.com/linux-system-roles/template/workflows/tox/badge.svg)
 
-A template for an ansible role that configures some GNU/Linux subsystem or
-service. A brief description of the role goes here.
+Fapolicyd system role
+
 
 ## Requirements
 
