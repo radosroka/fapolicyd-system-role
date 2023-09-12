@@ -10,56 +10,51 @@
   package_facts:
 
 - name: Copy fapolicyd configuration file
-  copy:
-    src: "{{ fapolicyd_setup_config_file }}"
+  template:
+    src: "{{ fapolicyd_setup_config_file }}.j2"
     dest: /etc/fapolicyd/fapolicyd.conf
     owner: root
     group: fapolicyd
     mode: '0644'
   register: daemon_config
-  when: fapolicyd_setup_config_file | default(false)
-
-- name: Copy fapolicyd rules file
-  copy:
-    src: "{{ fapolicyd_setup_rules_file }}"
-    dest: /etc/fapolicyd/rules.d/zz-ansible.rules
-    owner: root
-    group: fapolicyd
-    mode: '0644'
-  register: rules_config
-  when: fapolicyd_setup_rules_file | default(false)
-
-- name: Remove old fapolicyd rules file
-  file:
-    path: /etc/fapolicyd/fapolicyd.rules
-    state: absent
-  when: fapolicyd_setup_rules_file | default(false)
-
-- name: Copy fapolicyd trust file
-  copy:
-    src: "{{ fapolicyd_setup_trust_file }}"
-    dest: /etc/fapolicyd/trust.d/zz-ansible.trust
-    owner: root
-    group: fapolicyd
-    mode: '0644'
-  register: trust_config
-  when: fapolicyd_setup_trust_file | default(false)
-
-- name: Copy fapolicyd RPM filter file
-  copy:
-    src: "{{ fapolicyd_setup_rpm_filter_file }}"
-    dest: /etc/fapolicyd/rpm-filter.conf
-    owner: root
-    group: fapolicyd
-    mode: '0644'
-  register: rpm_filter_config
-  when: fapolicyd_setup_rpm_filter_file | default(false)
+  when:
+    - fapolicyd_setup_config_file | default(false)
+    - ansible_facts.distribution_version | float < 8.3
 
 - name: Run fapolicyd configuration check
   command: fapolicyd-cli --check-config
   check_mode: false
   changed_when: false
-  when: "'fapolicyd' in ansible_facts.packages"
+  when:
+    - "'fapolicyd' in ansible_facts.packages"
+    - ansible_facts.distribution_version | float >= 8.6
+
+- name: Add file to trustdb
+  command: fapolicyd-cli --file add {{ item }}
+  check_mode: false
+  changed_when: false
+  loop: "{{ fapolicyd_add_trusted_file if fapolicyd_add_trusted_file is iterable else [] }}"
+  when:
+    - fapolicyd_add_trusted_file
+    - ansible_facts.distribution_version | float >= 8.4
+
+- name: Remove file from trustdb
+  command: fapolicyd-cli --file delete {{ item }}
+  check_mode: false
+  changed_when: false
+  loop: "{{ fapolicyd_remove_trusted_file if fapolicyd_remove_trusted_file is iterable else [] }}"
+  when:
+    - fapolicyd_remove_trusted_file
+    - ansible_facts.distribution_version | float >= 8.4
+
+- name: Update file in trustdb
+  command: fapolicyd-cli --file update {{ item }}
+  check_mode: false
+  changed_when: false
+  loop: "{{ fapolicyd_update_trusted_file if fapolicyd_update_trusted_file is iterable else [] }}"
+  when:
+    - fapolicyd_update_trusted_file
+    - ansible_facts.distribution_version | float >= 8.4
 
 - name: Enable fapolicyd service
   service:
@@ -86,7 +81,4 @@
     - "'fapolicyd' in ansible_facts.packages"
     - fapolicyd_setup_enable_service | bool
     - service_start is not changed
-    - daemon_config is changed or
-      rules_config is changed or
-      trust_config is changed or
-      rpm_filter_config is changed
+    - daemon_config is changed
