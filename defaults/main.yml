@@ -9,13 +9,18 @@ fapolicyd_setup_enable_service: false
 # fapolicyd config file to copy
 # Role provided alternatives:
 # * fapolicyd.conf  - RHEL default config file
-fapolicyd_setup_config_file: "rhel-{{ ansible_facts.distribution_major_version }}-fapolicyd.conf"
+fapolicyd_setup_config_file: fapolicyd.conf
+
+# trust list for fapolicyd configuration file
+fapolicyd_setup_trust: rpm,file
+
+# set integrity
+# can be none, size, sha256, ima
+# in case of ima, kernel's IMA has to be setup correctly
+fapolicyd_setup_integrity: none
+
+# set permissive mode
+fapolicyd_setup_permissive: false
 
 # fapolicyd trust file managament
 fapolicyd_add_trusted_file:
-
-# fapolicyd trust file managament
-fapolicyd_update_trusted_file:
-
-# fapolicyd trust file managament
-fapolicyd_remove_trusted_file:

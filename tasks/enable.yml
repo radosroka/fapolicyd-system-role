@@ -27,7 +27,13 @@
   changed_when: false
   when:
     - "'fapolicyd' in ansible_facts.packages"
-    - ansible_facts.distribution_version | float >= 8.6
+    - ansible_facts.distribution_version | float > 8.5
+
+- name: Trustdb cleanup
+  ansible.builtin.shell: fapolicyd-cli --file delete / || /bin/true
+  when:
+    - fapolicyd_add_trusted_file
+    - ansible_facts.distribution_version | float > 8.3
 
 - name: Add file to trustdb
   command: fapolicyd-cli --file add {{ item }}
@@ -36,25 +42,7 @@
   loop: "{{ fapolicyd_add_trusted_file if fapolicyd_add_trusted_file is iterable else [] }}"
   when:
     - fapolicyd_add_trusted_file
-    - ansible_facts.distribution_version | float >= 8.4
-
-- name: Remove file from trustdb
-  command: fapolicyd-cli --file delete {{ item }}
-  check_mode: false
-  changed_when: false
-  loop: "{{ fapolicyd_remove_trusted_file if fapolicyd_remove_trusted_file is iterable else [] }}"
-  when:
-    - fapolicyd_remove_trusted_file
-    - ansible_facts.distribution_version | float >= 8.4
-
-- name: Update file in trustdb
-  command: fapolicyd-cli --file update {{ item }}
-  check_mode: false
-  changed_when: false
-  loop: "{{ fapolicyd_update_trusted_file if fapolicyd_update_trusted_file is iterable else [] }}"
-  when:
-    - fapolicyd_update_trusted_file
-    - ansible_facts.distribution_version | float >= 8.4
+    - ansible_facts.distribution_version | float > 8.3
 
 - name: Enable fapolicyd service
   service:
