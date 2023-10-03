@@ -5,9 +5,9 @@
   vars:
     fapolicyd_setup_enable_service: true
     fapolicyd_setup_integrity: sha256
-#    fapolicyd_add_trusted_file:
-#      - /etc/passwd
-#      - /etc/fapolicyd/fapolicyd.conf
-#      - /etc/krb5.conf
+    fapolicyd_add_trusted_file:
+      - /etc/passwd
+      - /etc/fapolicyd/fapolicyd.conf
+      - /etc/krb5.conf
   roles:
     - fapolicyd
