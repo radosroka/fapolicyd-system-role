@@ -26,7 +26,7 @@
   register: daemon_config
   when:
     - fapolicyd_setup_config_file | default(false)
-    - ansible_facts.distribution_version | float < 8.3
+    - ansible_facts.distribution_version | float > 8.2
 
 - name: Run fapolicyd configuration check
   command: fapolicyd-cli --check-config
