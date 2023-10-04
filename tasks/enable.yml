@@ -3,8 +3,15 @@
   yum:
     name:
       - fapolicyd
+    state: present
+
+- name: Install fapolicyd-selinux packages
+  yum:
+    name:
       - fapolicyd-selinux
     state: present
+  when:
+    - ansible_facts.distribution_version | float > 8.2
 
 - name: Gather package facts
   package_facts:
