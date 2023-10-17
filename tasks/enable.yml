@@ -18,7 +18,7 @@
 
 - name: Copy fapolicyd configuration file
   template:
-    src: "{{ fapolicyd_setup_config_file }}.j2"
+    src: fapolicyd.conf.j2
     dest: /etc/fapolicyd/fapolicyd.conf
     owner: root
     group: fapolicyd
@@ -67,12 +67,9 @@
     - "'fapolicyd' in ansible_facts.packages"
     - fapolicyd_setup_enable_service | bool
 
-- name: Restart fapolicyd to apply configuration changes
+- name: Not starting fapolicyd
   service:
     name: fapolicyd
-    state: restarted
+    state: stopped
   when:
-    - "'fapolicyd' in ansible_facts.packages"
-    - fapolicyd_setup_enable_service | bool
-    - service_start is not changed
-    - daemon_config is changed
+    - fapolicyd_setup_enable_service | bool == false
