@@ -12,7 +12,7 @@ fapolicyd_setup_enable_service: false
 fapolicyd_setup_config_file: fapolicyd.conf
 
 # trust list for fapolicyd configuration file
-fapolicyd_setup_trust: rpm,file
+fapolicyd_setup_trust: rpmdb,file
 
 # set integrity
 # can be none, size, sha256, ima
