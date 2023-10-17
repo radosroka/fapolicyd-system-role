@@ -9,4 +9,5 @@
 
 - name: Enable fapolicyd
   include_tasks: enable.yml
-  when: ansible_facts.distribution_version | float >= 8.1
+  when:
+    - ansible_facts.distribution_version is version("8.1", ">=")

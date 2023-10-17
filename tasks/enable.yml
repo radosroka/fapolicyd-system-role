@@ -11,7 +11,7 @@
       - fapolicyd-selinux
     state: present
   when:
-    - ansible_facts.distribution_version | float > 8.2
+    - ansible_facts.distribution_version is version("8.3", ">=")
 
 - name: Gather package facts
   package_facts:
@@ -25,15 +25,14 @@
     mode: '0644'
   register: daemon_config
   when:
-    - ansible_facts.distribution_version | float > 8.2
+    - ansible_facts.distribution_version is version("8.3", ">=")
 
 - name: Run fapolicyd configuration check
   command: fapolicyd-cli --check-config
   check_mode: false
   changed_when: false
   when:
-    - "'fapolicyd' in ansible_facts.packages"
-    - ansible_facts.distribution_version | float > 8.5
+    - ansible_facts.distribution_version is version("8.6", ">=")
 
 - name: Trustdb cleanup
   ansible.builtin.shell: fapolicyd-cli --file delete / || /bin/true
@@ -48,7 +47,7 @@
   loop: "{{ fapolicyd_add_trusted_file if fapolicyd_add_trusted_file is iterable else [] }}"
   when:
     - fapolicyd_add_trusted_file
-    - ansible_facts.distribution_version | float > 8.3
+    - ansible_facts.distribution_version is version("8.4", ">=")
 
 - name: Enable fapolicyd service
   service:

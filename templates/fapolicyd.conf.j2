@@ -3,7 +3,7 @@
 # See the fapolicyd.conf man page for explanation.
 #
 
-{% if fapolicyd_setup_permissive == true %}
+{% if fapolicyd_setup_permissive %}
 permissive = 1
 {% else %}
 permissive = 0
@@ -19,7 +19,7 @@ subj_cache_size = 1549
 obj_cache_size = 8191
 watch_fs = ext2,ext3,ext4,tmpfs,xfs,vfat,iso9660,btrfs
 trust = {{ fapolicyd_setup_trust }}
-{% if ansible_facts.distribution_version | float > 8.3 %}
+{% if ansible_facts.distribution_version is version("8.4", ">=") %}
 integrity = {{ fapolicyd_setup_integrity }}
 {% endif %}
 syslog_format = rule,dec,perm,auid,pid,exe,:,path,ftype,trust
