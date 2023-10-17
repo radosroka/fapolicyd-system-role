@@ -1,12 +1,12 @@
 ---
 - name: Install fapolicyd packages
-  yum:
+  package:
     name:
       - fapolicyd
     state: present
 
 - name: Install fapolicyd-selinux packages
-  yum:
+  package:
     name:
       - fapolicyd-selinux
     state: present
