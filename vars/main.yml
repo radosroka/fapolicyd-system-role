@@ -5,9 +5,10 @@
 # value in a platform/version specific file in vars/
 
 # Examples of non-distribution specific (generic) internal variables:
-__template_foo_config: foo.conf
-__template_packages: []
-__template_services: []
+
+__fapolicyd_services: fapolicyd.service
+__fapolicyd_config_file: fapolicyd.conf
+
 # ansible_facts required by the role
 __template_required_facts:
   - distribution

@@ -5,6 +5,7 @@
   vars:
     fapolicyd_setup_enable_service: true
     fapolicyd_setup_integrity: sha256
+    fapolicyd_setup_trust: rpmdb,file
     fapolicyd_add_trusted_file:
       - /etc/passwd
       - /etc/fapolicyd/fapolicyd.conf
