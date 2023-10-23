@@ -15,7 +15,7 @@ fapolicyd_setup_trust: ""
 fapolicyd_setup_integrity: ""
 
 # set permissive mode
-fapolicyd_setup_permissive:
+fapolicyd_setup_permissive: false
 
 # fapolicyd trust file managament
 fapolicyd_add_trusted_file: ""

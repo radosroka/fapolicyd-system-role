@@ -1,99 +1,67 @@
 # Fapolicyd
 
-![template](https://github.com/linux-system-roles/template/workflows/tox/badge.svg)
-
-Fapolicyd system role
-
+Fapolicyd System Role 
 
 ## Requirements
 
-Any prerequisites that may not be covered by Ansible itself or the role should
-be mentioned here.  This includes platform dependencies not managed by the
-role, hardware requirements, external collections, etc.  There should be a
-distinction between *control node* requirements (like collections) and
-*managed node* requirements (like special hardware, platform provisioning).
-
+This role is only supported on RHEL8.1+/CentOS8.1+ and Fedora distributions. Consider reading fapolicyd documentation before setting it up.
 
 ### Collection requirements
 
-For instance, if the role depends on some collections and
-has a `meta/collection-requirements.yml` file for installing those
-dependencies, it should be mentioned here that the user should run
-
-```
-ansible-galaxy collection install -vv -r meta/collection-requirements.yml
-```
-
-on the *control node* before using the role.
+None.
 
 ## Role Variables
 
-A description of all input variables (i.e. variables that are defined in
-`defaults/main.yml`) for the role should go here as these form an API of the
-role.  Each variable should have its own section e.g.
+### fapolicyd_setup_enable_service
 
-### template_foo
+Default `false` - if set to `true` the variable makes the service started 
+and enabled fapolicyd service after successful deployment.
 
-This variable is required.  It is a string that lists the foo of the role.
-There is no default value.
+### fapolicyd_setup_trust
 
-### template_bar
+Default `rpmdb,file` - there can be list of sources for trust option `file`, `rpmdb` or `deb`(if compiled with debian support).
+The option specifies which sources of trust a loaded and in which order.
 
-This variable is optional.  It is a boolean that tells the role to disable bar.
-The default value is `true`.
+### fapolicyd_setup_integrity
 
-Variables that are not intended as input, like variables defined in
-`vars/main.yml`, variables that are read from other roles and/or the global
-scope (ie. hostvars, group vars, etc.) can be also mentioned here but keep in
-mind that as these are probably not part of the role API they may change during
-the lifetime.
+Default `none` - there are four supported types of integrity. No integrity `none`, defined by `size` of the file, defined by hash of the file `sha256` and defined by hashes of files but generated from `ima` kernel subsystem. Note that IMA needs to be set up separately and this system role does not cover it.
 
-Example of setting the variables:
+### fapolicyd_setup_permissive
 
-```yaml
-template_foo: "oof"
-template_bar: false
-```
+Default `false` - if set to `true` deploys the daemon in permissive mode. 
 
-## Variables Exported by the Role
+### fapolicyd_add_trusted_file
 
-This section is optional.  Some roles may export variables for playbooks to
-use later.  These are analogous to "return values" in Ansible modules.  For
-example, if a role performs some action that will require a system reboot, but
-the user wants to defer the reboot, the role might set a variable like
-`template_reboot_needed: true` that the playbook can use to reboot at a more
-convenient time.
-
-Example:
-
-### template_reboot_needed
-
-Default `false` - if `true`, this means a reboot is needed to apply the changes
-made by the role
+Default `[]` - it can take list of files that will be marked as trusted.
 
 ## Example Playbook
 
-Including an example of how to use your role (for instance, with variables
-passed in as parameters) is always nice for users too:
 
-```yaml
-- name: Manage the template subsystem
+```
+---
+- name: Example template role invocation
   hosts: all
   vars:
-    template_foo: "foo foo!"
-    template_bar: false
+    fapolicyd_setup_enable_service: true
+    fapolicyd_setup_integrity: sha256
+    fapolicyd_setup_trust: rpmdb,file
+    fapolicyd_add_trusted_file:
+      - /etc/passwd
+      - /etc/fapolicyd/fapolicyd.conf
+      - /etc/krb5.conf
   roles:
-    - linux-system-roles.template
+    - fapolicyd
 ```
 
-More examples can be provided in the [`examples/`](examples) directory. These
-can be useful, especially for documentation.
+
 
 ## License
 
-Whenever possible, please prefer MIT.
+MIT
 
 ## Author Information
 
-An optional section for the role authors to include contact information, or a
-website (HTML is not allowed).
+Radovan Sroka @rsroka
+
+Marko Myllynen @myllynen
+
