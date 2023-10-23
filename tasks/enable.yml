@@ -6,7 +6,7 @@
   when:
     - fapolicyd_setup_trust
     - ansible_facts.distribution_version is version("8.2", "<=")
-  register: __failed_check
+  register: __failed_check_trust
 
 - name: Check integrity compatibility
   fail:
@@ -15,7 +15,7 @@
   when:
     - fapolicyd_setup_integrity
     - ansible_facts.distribution_version is version("8.3", "<=")
-  register: __failed_check
+  register: __failed_check_integrity
 
 - name: Check trust files compatibility
   fail:
@@ -24,13 +24,13 @@
   when:
     - fapolicyd_add_trusted_file
     - ansible_facts.distribution_version is version("8.3", "<=")
-  register: __failed_check
+  register: __failed_check_trusted_file
 
 - name: Check failed conditions
   fail:
     msg: Multiple failed conditions
   #failed_when: true
-  when: __failed_check
+  when: __failed_check_trust is failed or __failed_check_integrity is failed  or __failed_check_trusted_file is failed
 
 
 - name: Install fapolicyd packages
@@ -44,13 +44,12 @@
     name:
       - fapolicyd-selinux
     state: present
-  when:
-    - ansible_facts.distribution_version is version("8.3", ">=")
+  when: ansible_facts.distribution_version is version("8.3", ">=")
 
 - name: Copy fapolicyd configuration file
   template:
-    src: "{{ __fapolicyd_config_file }}.j2"
-    dest: /etc/fapolicyd/{{ __fapolicyd_conf }}
+    src: "{{ __fapolicyd_conf }}.j2"
+    dest: "{{ __fapolicyd_dir }}/{{ __fapolicyd_conf }}"
     owner: root
     group: fapolicyd
     mode: '0644'
@@ -59,18 +58,17 @@
   command: fapolicyd-cli --check-config
   check_mode: false
   changed_when: false
-  when:
-    - ansible_facts.distribution_version is version("8.6", ">=")
+  when: ansible_facts.distribution_version is version("8.6", ">=")
 
 - name: Trustdb cleanup
   command: fapolicyd-cli --file delete /
-  when: fapolicyd_add_trusted_file
+  when: fapolicyd_add_trusted_file | length > 0
   failed_when: false
 
 - name: Add file to trustdb
   command: fapolicyd-cli --file add {{ item | quote }}
   loop: "{{ (fapolicyd_add_trusted_file is string) | ternary([fapolicyd_add_trusted_file], fapolicyd_add_trusted_file) }}"
-  when: fapolicyd_add_trusted_file
+  when: fapolicyd_add_trusted_file | length > 0
 
 - name: Start fapolicyd service
   service:
@@ -80,6 +78,12 @@
   ignore_errors: true
   register: __fapolicyd_restart
 
+- name: Check fapolicyd logs
+  command: journalctl -n5 -u {{ __fapolicyd_services }}
+  register: __results
+  changed_when: false
+  when: __fapolicyd_restart is failed
+
 - name: Making sure fapolicyd does not run if it was set so
   service:
     name: fapolicyd
@@ -87,13 +91,10 @@
     enabled: false
   when: not fapolicyd_setup_enable_service
 
-- name: Print errors upon failure
-  command: journalctl -n5 -u {{ __fapolicyd_services }}
-  changed_when: false
-  register: __results
-  when: __fapolicyd_restart is failed
-
 - name: Print fapolicyd logs
   debug:
-    var: __results.stdout_lines
+    msg: "{{ __results.stdout_lines }}"
   failed_when: true
+  when:
+    - __fapolicyd_restart is failed
+    - __results.stdout_lines

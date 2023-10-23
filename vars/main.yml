@@ -7,7 +7,8 @@
 # Examples of non-distribution specific (generic) internal variables:
 
 __fapolicyd_services: fapolicyd.service
-__fapolicyd_config_file: fapolicyd.conf
+__fapolicyd_dir: /etc/fapolicyd
+__fapolicyd_conf: fapolicyd.conf
 
 # ansible_facts required by the role
 __template_required_facts:
