@@ -4,7 +4,7 @@
     msg: Fapolicyd does not support trust setting fapolicyd_setup_trust
   ignore_errors: true
   when:
-    - fapolicyd_setup_trust
+    - fapolicyd_setup_trust | length > 0
     - ansible_facts.distribution_version is version("8.2", "<=")
   register: __failed_check_trust
 
@@ -13,25 +13,26 @@
     msg: Fapolicyd does not support integrity setting fapolicyd_setup_integrity
   ignore_errors: true
   when:
-    - fapolicyd_setup_integrity
+    - fapolicyd_setup_integrity | length > 0
     - ansible_facts.distribution_version is version("8.3", "<=")
   register: __failed_check_integrity
 
 - name: Check trust files compatibility
   fail:
-    msg: Fapolicyd does not support trust files setting fapolicyd_add_trusted_file
+    msg: >-
+      Fapolicyd does not support trust files setting fapolicyd_add_trusted_file
   ignore_errors: true
   when:
-    - fapolicyd_add_trusted_file
+    - fapolicyd_add_trusted_file | length > 0
     - ansible_facts.distribution_version is version("8.3", "<=")
   register: __failed_check_trusted_file
 
 - name: Check failed conditions
   fail:
     msg: Multiple failed conditions
-  #failed_when: true
-  when: __failed_check_trust is failed or __failed_check_integrity is failed  or __failed_check_trusted_file is failed
-
+  # failed_when: true
+  when: __failed_check_trust is failed or __failed_check_integrity is failed  or
+    __failed_check_trusted_file is failed
 
 - name: Install fapolicyd packages
   package:
@@ -63,12 +64,15 @@
 - name: Trustdb cleanup
   command: fapolicyd-cli --file delete /
   when: fapolicyd_add_trusted_file | length > 0
+  changed_when: true
   failed_when: false
 
 - name: Add file to trustdb
   command: fapolicyd-cli --file add {{ item | quote }}
-  loop: "{{ (fapolicyd_add_trusted_file is string) | ternary([fapolicyd_add_trusted_file], fapolicyd_add_trusted_file) }}"
+  loop: "{{ (fapolicyd_add_trusted_file is string) |
+    ternary([fapolicyd_add_trusted_file], fapolicyd_add_trusted_file) }}"
   when: fapolicyd_add_trusted_file | length > 0
+  changed_when: true
 
 - name: Start fapolicyd service
   service:
