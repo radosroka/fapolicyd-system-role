@@ -7,15 +7,18 @@
 fapolicyd_setup_enable_service: false
 
 # trust list for fapolicyd configuration file
-fapolicyd_setup_trust: ""
+# default "rpmdb,file"
+fapolicyd_setup_trust: null
 
 # set integrity
-# can be none, size, sha256, ima
+# default "none"
+# can be "none", "size", "sha256", "ima"
 # in case of ima, kernel's IMA has to be setup correctly
-fapolicyd_setup_integrity: ""
+fapolicyd_setup_integrity: null
 
 # set permissive mode
 fapolicyd_setup_permissive: false
 
 # fapolicyd trust file managament
-fapolicyd_add_trusted_file: ""
+# list of trusted files
+fapolicyd_add_trusted_file: []

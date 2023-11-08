@@ -39,7 +39,7 @@ Default `[]` - it can take list of files that will be marked as trusted.
 
 ```
 ---
-- name: Example template role invocation
+- name: Example fapolicyd role invocation
   hosts: all
   vars:
     fapolicyd_setup_enable_service: true
