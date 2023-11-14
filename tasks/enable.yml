@@ -6,7 +6,7 @@
       on EL version < 8.3
   ignore_errors: true
   when:
-    - fapolicyd_setup_trust is not none
+    - fapolicyd_setup_trust | length > 0
     - ansible_facts.distribution_version is version("8.2", "<=")
   register: __failed_check_trust
 
@@ -17,7 +17,7 @@
       on EL version < 8.4
   ignore_errors: true
   when:
-    - fapolicyd_setup_integrity is not none
+    - fapolicyd_setup_integrity | length > 0
     - ansible_facts.distribution_version is version("8.3", "<=")
   register: __failed_check_integrity
 
@@ -28,7 +28,7 @@
       on EL version < 8.4
   ignore_errors: true
   when:
-    - fapolicyd_add_trusted_file is not none
+    - fapolicyd_add_trusted_file | length > 0
     - ansible_facts.distribution_version is version("8.3", "<=")
   register: __failed_check_trusted_file
 
@@ -67,17 +67,16 @@
 
 - name: Trustdb cleanup
   command: fapolicyd-cli --file delete /
-  when: fapolicyd_add_trusted_file is not none
+  when: ansible_facts.distribution_version is version("8.3", ">=")
   changed_when: true
   failed_when: false
 
 - name: Add file to trustdb
-  command: fapolicyd-cli --file add "{{ item | quote }}"
+  command: fapolicyd-cli --file add {{ item | quote }}
   loop: "{{ (fapolicyd_add_trusted_file is string) |
     ternary([fapolicyd_add_trusted_file], fapolicyd_add_trusted_file) }}"
   when:
-    - fapolicyd_add_trusted_file is string or
-      fapolicyd_add_trusted_file | length > 0
+    - fapolicyd_add_trusted_file | length > 0
     - ansible_facts.distribution_version is version("8.3", ">=")
   changed_when: true
 
