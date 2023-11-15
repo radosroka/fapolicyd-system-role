@@ -9,10 +9,10 @@
 
 - name: System check
   fail:
-    msg: >-
-      Only Red Hat Enterprise Linux >= 8.1 is supported;
-      System: {{ ansible_facts.os_family }}
-      Version: {{ ansible_facts.distribution_version }}
+    msg:
+      - Only Red Hat Enterprise Linux >= 8.1 and Fedora is supported
+      - System: "{{ ansible_facts.os_family }}"
+      - Version: "{{ ansible_facts.distribution_version }}"
   when: (ansible_facts.os_family != "RedHat") or
     (ansible_facts.distribution_version is version("8.1", "<"))
 
